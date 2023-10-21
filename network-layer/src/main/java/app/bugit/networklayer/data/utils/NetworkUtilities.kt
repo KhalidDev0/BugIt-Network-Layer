@@ -7,6 +7,7 @@ import app.bugit.networklayer.data.model.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class NetworkUtilities @Inject constructor(
@@ -26,9 +27,8 @@ class NetworkUtilities @Inject constructor(
             if (!isOnline())
                 return@flow emit(Resource.Error(
                     ApiError(
-                        NetworkError.NO_INTERNET.code, context.getString(
-                            androidx.appcompat.R.string.abc_action_bar_home_description
-                        )
+                        NetworkError.NO_INTERNET.code,
+                        "Please connect to internet"
                     )
                 ))
 
@@ -37,13 +37,25 @@ class NetworkUtilities @Inject constructor(
             val response = apiToBeCalled()
             emit(Resource.Success(response))
 
-        } catch (ex: Exception) {
+        } catch (e: HttpException) {
+            // You can handle every http exception here
+
             emit(
                 Resource.Error(
                     ApiError(
-                        NetworkError.UNKNOWN_ERROR.code, context.getString(
-                            androidx.appcompat.R.string.abc_action_bar_home_description
-                        )
+                        e.code(),
+                        e.message()
+                    )
+                )
+            )
+        }
+
+        catch (e: Exception) {
+            emit(
+                Resource.Error(
+                    ApiError(
+                        NetworkError.UNKNOWN_ERROR.code,
+                        "Unknown Error"
                     )
                 )
             )
@@ -51,6 +63,7 @@ class NetworkUtilities @Inject constructor(
     }
 
     enum class NetworkError(val code: Int) {
+        // Add all http exception you need here and other exceptions
         NO_INTERNET(1000),
         UNKNOWN_ERROR(3000),
     }
