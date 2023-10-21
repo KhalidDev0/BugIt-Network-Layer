@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -18,6 +19,15 @@ object RetrofitModule {
     fun provideRetrofit(): Retrofit =
         Retrofit.Builder()
             .baseUrl(NetworkConstant.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    @Singleton
+    @Provides
+    @Named("ImageRetrofit")
+    fun provideImageRetrofit(): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(NetworkConstant.IMAGE_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 }
